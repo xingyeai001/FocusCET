@@ -35,6 +35,12 @@ if not hits:
     print("NOT-FOUND")
     sys.exit(2)
 
+# 标题完全等于关键字时优先用它。否则"FocusCET"这种词会误中浏览器标签页
+# （例如开着 GitHub 仓库页时，Edge 标题里也含 FocusCET）。
+exact = [h for h in hits if h[1] == KEY]
+if exact:
+    hits = exact
+
 hwnd, title = hits[-1]
 u.ShowWindow(hwnd, 9)              # SW_RESTORE
 try:
