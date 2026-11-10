@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="aTile" x1="0.15" y1="0" x2="0.85" y2="1">
+    <stop offset="0" stop-color="#1C2030"/>
+    <stop offset="0.52" stop-color="#12141D"/>
+    <stop offset="1" stop-color="#0A0B10"/>
+  </linearGradient>
+  <radialGradient id="aAmb" cx="0.5" cy="0.92" r="0.72">
+    <stop offset="0" stop-color="#E63A55" stop-opacity="0.20"/>
+    <stop offset="0.55" stop-color="#B62A6E" stop-opacity="0.10"/>
+    <stop offset="1" stop-color="#B62A6E" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="aRing" x1="0.16" y1="0.02" x2="0.86" y2="0.98">
+    <stop offset="0" stop-color="#FFC078"/>
+    <stop offset="0.34" stop-color="#FF7048"/>
+    <stop offset="0.68" stop-color="#E93B58"/>
+    <stop offset="1" stop-color="#B92B72"/>
+  </linearGradient>
+  <linearGradient id="aHi" x1="0.2" y1="0" x2="0.6" y2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+    <stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0.10"/>
+    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="aGlow" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="34"/>
+  </filter>
+  <filter id="aSoft" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="7"/>
+  </filter>
+  <clipPath id="aClip"><path d="M 278 54 H 746 A 224 224 0 0 1 970 278 V 746 A 224 224 0 0 1 746 970 H 278 A 224 224 0 0 1 54 746 V 278 A 224 224 0 0 1 278 54 Z"/></clipPath>
+</defs>
+
+<path d="M 278 54 H 746 A 224 224 0 0 1 970 278 V 746 A 224 224 0 0 1 746 970 H 278 A 224 224 0 0 1 54 746 V 278 A 224 224 0 0 1 278 54 Z" fill="url(#aTile)"/>
+<g clip-path="url(#aClip)">
+  <rect x="54" y="54" width="916" height="916" fill="url(#aAmb)"/>
+  <!-- 外发光 -->
+  <path d="M 750.3 655.2 A 278 278 0 1 1 750.3 368.8" fill="none" stroke="url(#aRing)" stroke-width="106" stroke-linecap="round"
+        opacity="0.42" filter="url(#aGlow)"/>
+  <!-- 环体 -->
+  <path d="M 750.3 655.2 A 278 278 0 1 1 750.3 368.8" fill="none" stroke="url(#aRing)" stroke-width="96" stroke-linecap="round"/>
+  <!-- 内缘高光：光源在左上 -->
+  <path d="M 267.6 529.1 A 245 245 0 0 1 619.4 291.8" fill="none" stroke="url(#aHi)" stroke-width="9"
+        stroke-linecap="round" opacity="0.85" filter="url(#aSoft)"/>
+  <!-- 顶边内侧反光 -->
+  <path d="M 250 60 H 774" stroke="#FFFFFF" stroke-width="3" opacity="0.10" filter="url(#aSoft)"/>
+</g>
+<!-- 边缘 1px 收口，避免深底发虚 -->
+<path d="M 278 54 H 746 A 224 224 0 0 1 970 278 V 746 A 224 224 0 0 1 746 970 H 278 A 224 224 0 0 1 54 746 V 278 A 224 224 0 0 1 278 54 Z" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.11"/>
+</svg>

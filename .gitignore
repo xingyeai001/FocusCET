@@ -1,0 +1,22 @@
+# 依赖
+node_modules/
+
+# 打包产物（181 MB 安装包与解包目录，不进版本库）
+dist/
+dist-old/
+*.blockmap
+
+# 离线语音引擎（98 MB，第三方资源：piper 二进制 + 语音模型）
+# 源码里按 engine/ 路径加载，需要时见 README「离线语音」一节自行放置
+engine/
+
+# 本地运行 / 自动化测试的临时产物
+*.log
+build/live.log*
+build/shots/
+
+# 系统与编辑器
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/

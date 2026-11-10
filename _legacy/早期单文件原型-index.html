@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>番茄四级 · 本地学习台</title>
+<style>
+:root{
+  --bg:#0e1014;
+  --card:#161920;
+  --card2:#1c2029;
+  --line:#252a34;
+  --text:#e7e9ee;
+  --dim:#98a0ae;
+  --faint:#646c7b;
+  --red:#e2584a;
+  --green:#35a894;
+  --blue:#5b8def;
+  --amber:#d99a3c;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 1px 2px rgba(0,0,0,.25);
+}
+[data-theme="light"]{
+  --bg:#f4f4f1;
+  --card:#ffffff;
+  --card2:#fafaf7;
+  --line:#e5e4df;
+  --text:#191b1f;
+  --dim:#5d636e;
+  --faint:#8b919b;
+  --red:#c8453a;
+  --green:#1f8a76;
+  --blue:#3d6fd4;
+  --amber:#a8721a;
+  --shadow:0 1px 2px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:14px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  transition:background .2s,color .2s;
+}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:inherit}
+.wrap{max-width:840px;margin:0 auto;padding:0 20px}
+
+/* ---------- 顶栏 ---------- */
+.topbar{
+  position:sticky;top:0;z-index:30;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;height:56px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand-mark{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid var(--red);
+  background:radial-gradient(circle at 34% 32%,var(--red) 0 42%,transparent 43%);
+  flex:none;
+}
+.brand-name{font-size:15px;font-weight:500;letter-spacing:.01em}
+.topbar-meta{display:flex;align-items:center;gap:10px}
+.badge{
+  font-size:12px;padding:3px 9px;border-radius:20px;
+  background:var(--card2);border:1px solid var(--line);color:var(--dim);
+}
+.meta-item{font-size:12px;color:var(--faint)}
+.icon-btn{
+  font-size:12px;padding:4px 10px;border-radius:7px;
+  border:1px solid var(--line);color:var(--dim);
+  transition:.15s;
+}
+.icon-btn:hover{color:var(--text);border-color:var(--faint)}
+
+/* ---------- Tab ---------- */
+.tabs{display:flex;gap:4px;padding:14px 0 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  padding:7px 14px;border-radius:8px;font-size:13px;color:var(--dim);
+  white-space:nowrap;transition:.15s;display:flex;align-items:center;gap:6px;
+}
+.tab:hover{color:var(--text);background:var(--card)}
+.tab.active{color:var(--text);background:var(--card);font-weight:500}
+.pill{
+  font-size:11px;min-width:18px;height:18px;padding:0 5px;
+  border-radius:9px;background:var(--red);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-weight:500;line-height:1;
+}
+.pill[hidden]{display:none}
+
+/* ---------- 视图 ---------- */
+.view{display:none;padding:22px 0 60px;animation:fade .22s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ---------- 计时器 ---------- */
+.timer-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:26px 24px 22px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.timer-stage{font-size:12px;color:var(--faint);letter-spacing:.06em;margin-bottom:14px;min-height:18px}
+.ring-wrap{position:relative;width:250px;height:250px;margin:0 auto}
+.ring{width:250px;height:250px;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--line);stroke-width:6}
+.ring-fg{
+  fill:none;stroke:var(--red);stroke-width:6;stroke-linecap:round;
+  stroke-dasharray:552.92;stroke-dashoffset:0;
+  transition:stroke-dashoffset .3s linear,stroke .25s;
+}
+.ring-wrap.is-break .ring-fg{stroke:var(--green)}
+.ring-wrap.is-idle .ring-fg{stroke:var(--line)}
+.ring-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;
+}
+.timer-num{
+  font-size:46px;font-weight:300;letter-spacing:.01em;
+  font-variant-numeric:tabular-nums;line-height:1;
+  font-feature-settings:"tnum";
+}
+.timer-sub{font-size:12px;color:var(--dim);max-width:170px;line-height:1.5}
+.timer-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px;min-height:36px}
+.timer-hint{font-size:12px;color:var(--faint);margin-top:12px;min-height:18px}
+
+.btn{
+  padding:8px 18px;border-radius:9px;font-size:13px;font-weight:500;
+  transition:.15s;white-space:nowrap;
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--red);color:#fff}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{filter:brightness(1.08)}
+.btn-ghost{border:1px solid var(--line);color:var(--dim)}
+.btn-ghost:hover{color:var(--text);border-color:var(--faint)}
+.btn-quiet{color:var(--faint);padding:8px 10px}
+.btn-quiet:hover{color:var(--red)}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+
+/* ---------- 区块标题 ---------- */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:30px 0 12px}
+.section-head h2{font-size:14px;font-weight:500;letter-spacing:.01em}
+.section-head .sub{font-size:12px;color:var(--faint);font-weight:400;margin-left:8px}
+.ghost-btn{font-size:12px;color:var(--dim);padding:4px 8px;border-radius:6px;transition:.15s}
+.ghost-btn:hover{color:var(--text);background:var(--card2)}
+
+/* ---------- 今日计划 ---------- */
+.plan-list{display:flex;flex-direction:column;gap:8px}
+.plan-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px 14px;
+  transition:.15s;
+}
+.plan-item:hover{border-color:var(--faint)}
+.plan-item.done{opacity:.5}
+.plan-item.done .plan-name{text-decoration:line-through}
+.check{
+  width:19px;height:19px;flex:none;border-radius:6px;
+  border:1.5px solid var(--faint);
+  display:flex;align-items:center;justify-content:center;
+  transition:.15s;font-size:12px;color:transparent;
+}
+.check:hover{border-color:var(--green)}
+.plan-item.done .check{background:var(--green);border-color:var(--green);color:#fff}
+.plan-main{flex:1;min-width:0}
+.plan-name{font-size:13.5px;font-weight:500}
+.plan-desc{font-size:12px;color:var(--faint);margin-top:1px}
+.plan-meta{display:flex;align-items:center;gap:10px;flex:none}
+.cat-tag{font-size:11px;padding:2px 7px;border-radius:5px;background:var(--card2);color:var(--dim);border:1px solid var(--line)}
+.dur{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.play-btn{
+  width:30px;height:30px;border-radius:8px;flex:none;
+  border:1px solid var(--line);color:var(--dim);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  transition:.15s;
+}
+.play-btn:hover{border-color:var(--red);color:var(--red)}
+.plan-item.done .play-btn{display:none}
+
+/* ---------- 今日记录 ---------- */
+.daily-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat-box{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.stat-label{font-size:11.5px;color:var(--faint);margin-bottom:6px}
+.stat-num{font-size:22px;font-weight:400;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat-unit{font-size:11px;color:var(--faint);margin-left:3px}
+
+/* ---------- 复习 ---------- */
+.review-empty{
+  text-align:center;padding:70px 20px;color:var(--faint);font-size:13px;
+}
+.review-empty strong{display:block;color:var(--dim);font-size:15px;font-weight:500;margin-bottom:8px}
+.fc-wrap{max-width:520px;margin:0 auto}
+.fc-progress{font-size:12px;color:var(--faint);text-align:center;margin-bottom:14px;font-variant-numeric:tabular-nums}
+.flashcard{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:18px;min-height:230px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:34px 28px;cursor:pointer;transition:.18s;text-align:center;
+}
+.flashcard:hover{border-color:var(--faint)}
+.fc-front{font-size:32px;font-weight:400;letter-spacing:.01em;word-break:break-word}
+.fc-back{margin-top:14px;font-size:14px;color:var(--dim);line-height:1.7;max-width:400px}
+.fc-back .ex{font-size:12.5px;color:var(--faint);margin-top:8px;font-style:italic}
+.fc-tip{font-size:11.5px;color:var(--faint);margin-top:18px}
+.fc-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.fc-actions.hidden{display:none}
+.rate{border:1px solid var(--line);border-radius:10px;padding:11px 6px;font-size:12.5px;color:var(--dim);transition:.15s}
+.rate:hover{border-color:var(--faint);color:var(--text)}
+.rate.again:hover{border-color:var(--red);color:var(--red)}
+.rate.good:hover{border-color:var(--green);color:var(--green)}
+.rate small{display:block;font-size:10.5px;color:var(--faint);margin-top:1px}
+
+/* 计划页的复习入口条 */
+.due-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:13px 16px;margin-bottom:10px;
+}
+.due-bar-main{font-size:13px}
+.due-bar-main b{font-weight:500;color:var(--text)}
+.due-bar-main span{color:var(--faint);font-size:12px;margin-left:6px}
+
+/* ---------- 记录 ---------- */
+.chart-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:120px;margin-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bar{
+  width:100%;max-width:34px;border-radius:5px 5px 2px 2px;
+  background:var(--red);opacity:.85;min-height:2px;transition:.3s;
+}
+.bar.today{opacity:1;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--red) 45%,transparent)}
+.bar-label{font-size:10.5px;color:var(--faint);flex:none}
+.bar-val{font-size:10.5px;color:var(--faint);font-variant-numeric:tabular-nums;flex:none}
+.cat-rows{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.cat-row{display:flex;align-items:center;gap:10px;font-size:12.5px}
+.cat-row .n{width:32px;color:var(--dim);flex:none}
+.cat-row .track{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.cat-row .fill{height:100%;background:var(--blue);border-radius:3px}
+.cat-row .v{width:52px;text-align:right;color:var(--faint);font-variant-numeric:tabular-nums;flex:none}
+.log-list{display:flex;flex-direction:column;gap:1px;background:var(--line);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line)}
+.log-row{display:flex;align-items:center;gap:10px;background:var(--card);padding:10px 14px;font-size:12.5px}
+.log-row .t{color:var(--faint);font-variant-numeric:tabular-nums;flex:none;width:42px}
+.log-row .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log-row .m{color:var(--faint);flex:none;font-variant-numeric:tabular-nums}
+.log-row .s{flex:none;font-size:11px;padding:1px 6px;border-radius:4px}
+.s-done{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.s-abort{background:color-mix(in srgb,var(--red) 18%,transparent);color:var(--red)}
+
+/* ---------- 设置 ---------- */
+.set-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.set-row:last-child{border-bottom:none}
+.set-info .t{font-size:13.5px}
+.set-info .d{font-size:12px;color:var(--faint);margin-top:1px}
+.set-ctrl{display:flex;align-items:center;gap:8px;flex:none}
+input[type=number],input[type=text],textarea,select{
+  background:var(--bg);border:1px solid var(--line);color:var(--text);
+  border-radius:7px;padding:6px 9px;font-size:13px;outline:none;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--blue)}
+input[type=number]{width:72px;text-align:center}
+textarea{width:100%;min-height:120px;resize:vertical;line-height:1.6}
+
+/* ---------- 弹窗 ---------- */
+dialog{
+  border:1px solid var(--line);background:var(--card);color:var(--text);
+  border-radius:16px;padding:0;max-width:440px;width:calc(100% - 40px);
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+dialog::backdrop{background:rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+.dlg-head{padding:18px 20px 0;font-size:15px;font-weight:500}
+.dlg-body{padding:14px 20px 4px;font-size:13px;color:var(--dim)}
+.dlg-body p{margin-bottom:10px}
+.dlg-body b{color:var(--text);font-weight:500}
+.dlg-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px 18px}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{padding:5px 10px;border-radius:7px;border:1px solid var(--line);font-size:12px;color:var(--dim);transition:.15s}
+.chip:hover{border-color:var(--faint);color:var(--text)}
+.chip.on{background:color-mix(in srgb,var(--blue) 16%,transparent);border-color:var(--blue);color:var(--blue)}
+
+/* ---------- Toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:32px;transform:translate(-50%,12px);
+  background:var(--card2);border:1px solid var(--line);
+  padding:10px 18px;border-radius:10px;font-size:13px;
+  opacity:0;pointer-events:none;transition:.25s;z-index:100;
+  max-width:80vw;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.3);
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- 移动端 ---------- */
+@media (max-width:640px){
+  .wrap{padding:0 14px}
+  .ring-wrap,.ring{width:220px;height:220px}
+  .timer-num{font-size:40px}
+  .daily-grid{grid-template-columns:repeat(2,1fr)}
+  .meta-item{display:none}
+  .timer-card{padding:20px 16px 18px}
+  .topbar-meta{gap:6px}
+  .plan-item{padding:11px 12px;gap:10px}
+  .cat-tag{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">番茄四级</span>
+    </div>
+    <div class="topbar-meta">
+      <span class="badge" id="stageBadge">基础期</span>
+      <span class="meta-item" id="streakMeta">连续 0 天</span>
+      <button class="icon-btn" id="themeBtn">主题</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="tabs">
+    <button class="tab active" data-view="today">今日</button>
+    <button class="tab" data-view="review">复习 <span class="pill" id="duePill" hidden>0</span></button>
+    <button class="tab" data-view="stats">记录</button>
+    <button class="tab" data-view="settings">设置</button>
+  </nav>
+
+  <!-- ============ 今日 ============ -->
+  <section class="view active" id="view-today">
+    <div class="timer-card">
+      <div class="timer-stage" id="timerStage">今天还没开始</div>
+      <div class="ring-wrap is-idle" id="ringWrap">
+        <svg class="ring" viewBox="0 0 200 200">
+          <circle class="ring-bg" cx="100" cy="100" r="88"></circle>
+          <circle class="ring-fg" cx="100" cy="100" r="88" id="ringFg"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="timer-num" id="timerNum">25:00</div>
+          <div class="timer-sub" id="timerSub">从下面挑一件事开始</div>
+        </div>
+      </div>
+      <div class="timer-actions" id="timerActions"></div>
+      <div class="timer-hint" id="timerHint"></div>
+    </div>
+
+    <div class="section-head">
+      <h2>今日安排 <span class="sub" id="planSummary"></span></h2>
+      <button class="ghost-btn" id="addTaskBtn">自定义任务</button>
+    </div>
+    <div id="dueBarSlot"></div>
+    <div class="plan-list" id="planList"></div>
+
+    <div class="section-head"><h2>今天的账</h2></div>
+    <div class="daily-grid" id="dailyGrid"></div>
+  </section>
+
+  <!-- ============ 复习 ============ -->
+  <section class="view" id="view-review">
+    <div id="reviewBody"></div>
+  </section>
+
+  <!-- ============ 记录 ============ -->
+  <section class="view" id="view-stats">
+    <div class="section-head" style="margin-top:4px"><h2>累计</h2></div>
+    <div class="daily-grid" id="totalGrid"></div>
+
+    <div class="section-head"><h2>近 7 天专注</h2></div>
+    <div class="chart-card">
+      <div class="bars" id="weekBars"></div>
+    </div>
+
+    <div class="section-head"><h2>时间花在哪</h2></div>
+    <div class="chart-card">
+      <div class="cat-rows" id="catRows"></div>
+    </div>
+
+    <div class="section-head"><h2>最近记录</h2></div>
+    <div class="log-list" id="logList"></div>
+  </section>
+
+  <!-- ============ 设置 ============ -->
+  <section class="view" id="view-settings">
+    <div class="section-head" style="margin-top:4px"><h2>节奏</h2></div>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-info">
+          <div class="t">每日目标</div>
+          <div class="d">用来生成每天的建议安排，不是硬指标</div>
+        </div>
+        <div class="set-ctrl">
+          <input type="number" id="setDaily" min="20" max="360" step="10">
+          <span style="font-size:12px;color:var(--faint)">分钟</span>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-info">
+          <div class="t">标准番茄长度</div>
+          <div class="d">只影响自定义任务，各题型本身有固定时长</div>
+        </div>
+        <div class="set-ctrl">
+          <input type="number" id="setPomo" min="10" max="60" step="5">
+          <span style="font-size:12px;color:var(--faint)">分钟</span>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-info">
+          <div class="t">阶段</div>
+          <div class="d">默认按积累量自动推进，也可以手动锁定</div>
+        </div>
+        <div class="set-ctrl">
+          <select id="setStage">
+            <option value="auto">跟随进度</option>
+            <option value="base">基础期</option>
+            <option value="build">积累期</option>
+            <option value="boost">强化期</option>
+            <option value="mock">模拟期</option>
+          </select>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-info">
+          <div class="t">铃响后自动休息</div>
+          <div class="d">关掉就手动开始休息</div>
+        </div>
+        <div class="set-ctrl">
+          <input type="checkbox" id="setAutoBreak" style="width:18px;height:18px;accent-color:var(--green)">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>卡片导入</h2></div>
+    <div class="set-card">
+      <div style="padding:14px 16px">
+        <div style="font-size:12px;color:var(--faint);margin-bottom:10px">
+          每行一张，用竖线分隔正面和背面。例如：<br>
+          <code style="font-size:11.5px;color:var(--dim)">abandon | v. 放弃，抛弃</code>
+        </div>
+        <textarea id="importArea" placeholder="abandon | v. 放弃，抛弃&#10;adapt | v. 适应；改编"></textarea>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn btn-blue" id="importBtn">导入</button>
+          <button class="btn btn-ghost" id="importBuiltinBtn">补齐内置词库</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head"><h2>数据</h2></div>
+    <div class="set-card">
+      <div class="set-row">
+        <div class="set-info">
+          <div class="t">备份</div>
+          <div class="d">所有数据都存在这台电脑的浏览器里，换设备请先导出</div>
+        </div>
+        <div class="set-ctrl">
+          <button class="btn btn-ghost" id="exportBtn">导出</button>
+          <button class="btn btn-ghost" id="importDataBtn">恢复</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <div class="set-info">
+          <div class="t">清空全部数据</div>
+          <div class="d">不可恢复，导出备份后再操作</div>
+        </div>
+        <div class="set-ctrl">
+          <button class="btn btn-quiet" id="resetBtn">清空</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:11.5px;color:var(--faint);margin-top:36px;line-height:1.8">
+      番茄四级 · 纯本地运行，不联网、不注册<br>
+      数据保存在浏览器的 localStorage 里
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+<input type="file" id="fileInput" accept="application/json" style="display:none">
+
+<script>
+/* ============================================================
+   番茄四级 · 单文件本地应用
+   数据全部存在浏览器 localStorage，不联网、不注册
+   ============================================================ */
+
+/* ---------- 1. 常量 ---------- */
+const STORAGE_KEY = 'cet4pomodoro.v1';
+const RING_LEN = 552.92;
+
+// 艾宾浩斯复习阶梯（天）。0.007 天约等于 10 分钟，用于当天强化
+const EBB = [0.007, 1, 2, 4, 7, 15, 30, 60];
+const EBB_LABEL = ['10 分钟', '1 天', '2 天', '4 天', '7 天', '15 天', '30 天', '60 天'];
+
+const STAGES = {
+  base:  { name: '基础期', hint: '先把每天坐下来变成习惯' },
+  build: { name: '积累期', hint: '加阅读和听写，开始有量' },
+  boost: { name: '强化期', hint: '全题型上场，开始限时' },
+  mock:  { name: '模拟期', hint: '整卷模考，停用番茄' }
+};
+
+/* ---------- 2. 内置词库 ----------
+   每行：单词 | 释义 | 例句
+   #开头的是分组标记
+*/
+const BUILTIN_RAW = `
+#核心动词
+achieve|v. 达到，实现|She worked hard to achieve her goal.
+acquire|v. 获得，习得|Children acquire language quickly.
+adapt|v. 适应；改编|It takes time to adapt to a new city.
+adjust|v. 调整，适应|You can adjust the seat height.
+adopt|v. 采用；收养|The school adopted a new rule.
+affect|v. 影响|Lack of sleep affects your memory.
+apply|v. 申请；应用|He applied for a scholarship.
+appreciate|v. 感激；欣赏|I really appreciate your help.
+approach|v. 接近；着手 n. 方法|We need a new approach to this problem.
+argue|v. 争论；主张|They argued about the price.
+arrange|v. 安排，整理|She arranged the meeting for Friday.
+assess|v. 评估|Teachers assess students' progress.
+assume|v. 假设；承担|Do not assume everyone agrees with you.
+attempt|v. 尝试 n. 努力|He attempted to fix the machine.
+attract|v. 吸引|The city attracts many tourists.
+avoid|v. 避免|Try to avoid making the same mistake.
+compare|v. 比较|Compare the two answers carefully.
+complete|v. 完成 adj. 完整的|Please complete the form.
+consider|v. 考虑；认为|We are considering moving abroad.
+contain|v. 包含，容纳|This box contains old photos.
+contribute|v. 贡献；促成|Everyone contributed to the project.
+create|v. 创造|The app creates a daily plan for you.
+decrease|v. 减少|Sales decreased last month.
+define|v. 定义|How do you define success?
+depend|v. 依靠，取决于|It depends on the weather.
+develop|v. 发展；开发|They developed a new product.
+discover|v. 发现|Scientists discovered a new species.
+discuss|v. 讨论|Let us discuss it tomorrow.
+determine|v. 决定；确定|The result determines your grade.
+deliver|v. 递送；发表|He delivered a short speech.
+#学术高频
+analysis|n. 分析|The analysis shows a clear trend.
+aspect|n. 方面|Consider every aspect of the plan.
+attitude|n. 态度|Her attitude towards work changed.
+authority|n. 权威；当局|The local authority approved it.
+benefit|n. 好处 v. 有益于|Exercise benefits both body and mind.
+capacity|n. 容量；能力|The hall has a capacity of 500.
+category|n. 类别|Books are sorted into categories.
+circumstance|n. 情况，环境|Under no circumstances should you quit.
+conclusion|n. 结论|We reached the same conclusion.
+consequence|n. 后果|Every choice has consequences.
+contrast|n. 对比 v. 对照|The contrast between the two is obvious.
+criterion|n. 标准（复 criteria）|Price is not the only criterion.
+data|n. 数据|The data supports this view.
+definition|n. 定义|The definition is too vague.
+evidence|n. 证据|There is little evidence for that claim.
+factor|n. 因素|Cost is a major factor.
+function|n. 功能 v. 运转|The function of this key is to save.
+impact|n. 影响|The policy had a huge impact.
+individual|n. 个人 adj. 个别的|Each individual learns differently.
+method|n. 方法|This method saves a lot of time.
+principle|n. 原则，原理|He sticks to his principles.
+process|n. 过程 v. 加工|Learning is a slow process.
+purpose|n. 目的|What is the purpose of this test?
+research|n. 研究 v. 调查|She is doing research on memory.
+resource|n. 资源|Time is our scarcest resource.
+result|n. 结果 v. 导致|The result was better than expected.
+structure|n. 结构|The essay has a clear structure.
+theory|n. 理论|The theory has been tested for years.
+trend|n. 趋势|There is a growing trend of remote work.
+task|n. 任务|Break the task into small steps.
+#形容词
+accurate|adj. 准确的|The clock is very accurate.
+actual|adj. 实际的|The actual cost was higher.
+adequate|adj. 足够的|We have adequate time.
+apparent|adj. 明显的|It soon became apparent that he lied.
+appropriate|adj. 合适的|Wear appropriate clothes for the interview.
+available|adj. 可获得的；有空的|The room is available after six.
+aware|adj. 意识到的|Are you aware of the risk?
+complex|adj. 复杂的|This is a complex problem.
+considerable|adj. 相当大的|It took a considerable amount of time.
+constant|adj. 持续的；不变的|The constant noise annoyed him.
+crucial|adj. 关键的|Sleep is crucial for memory.
+current|adj. 当前的|The current situation is stable.
+efficient|adj. 高效的|This method is more efficient.
+essential|adj. 必要的|Water is essential to life.
+evident|adj. 明显的|His effort was evident.
+flexible|adj. 灵活的|Our schedule is flexible.
+frequent|adj. 频繁的|Frequent breaks help concentration.
+fundamental|adj. 根本的|Reading is a fundamental skill.
+gradual|adj. 逐渐的|There was a gradual improvement.
+immediate|adj. 立即的|We need an immediate answer.
+inevitable|adj. 不可避免的|Mistakes are inevitable when learning.
+major|adj. 主要的 n. 专业|The major cause is lack of sleep.
+minor|adj. 次要的|It is only a minor problem.
+obvious|adj. 明显的|The answer is obvious.
+potential|adj. 潜在的 n. 潜力|She has great potential.
+precise|adj. 精确的|Give me a precise number.
+previous|adj. 以前的|The previous owner kept it clean.
+primary|adj. 首要的|Our primary goal is to finish on time.
+relevant|adj. 相关的|Only relevant details are needed.
+significant|adj. 显著的；重要的|There was a significant rise in sales.
+#逻辑连接
+however|adv. 然而|It rained; however, we went out.
+therefore|adv. 因此|He was late; therefore he missed the bus.
+moreover|adv. 而且|The plan is cheap; moreover, it works.
+whereas|conj. 而，然而|He likes tea, whereas she prefers coffee.
+despite|prep. 尽管|Despite the rain, they kept walking.
+consequently|adv. 结果，因此|He overslept; consequently he was late.
+furthermore|adv. 此外|Furthermore, the cost is too high.
+nevertheless|adv. 然而|It was hard; nevertheless, we finished.
+regarding|prep. 关于|He asked a question regarding the schedule.
+eventually|adv. 最终|She eventually found the answer.
+`;
+
+/* ---------- 3. 任务库 ----------
+   每个题型有它自己的自然时长，这是这个工具和普通番茄钟的区别
+*/
+const TASK_LIB = [
+  { id:'vocab-review',    cat:'词汇', name:'复习到期卡片',   min:12,  desc:'只过旧词，不背新词',        stages:['base','build','boost','mock'] },
+  { id:'vocab-new',       cat:'词汇', name:'学 20 个新词',   min:15,  desc:'新词当天必须再过一次',      stages:['base','build','boost'] },
+  { id:'listen-sound',    cat:'听力', name:'听音辨词 10 个', min:10,  desc:'听发音写单词，练耳朵',      stages:['base'] },
+  { id:'listen-intensive',cat:'听力', name:'精听短文 1 篇',  min:25,  desc:'盲听、看稿、复述各一遍',    stages:['base','build','boost'] },
+  { id:'listen-dictation',cat:'听力', name:'听写 5 句',      min:20,  desc:'一句一句写，写完对答案',    stages:['build','boost'] },
+  { id:'read-passage',    cat:'阅读', name:'精读 1 篇',      min:30,  desc:'查生词、拆长句，不求快',    stages:['build','boost'] },
+  { id:'read-set',        cat:'阅读', name:'限时阅读套题',   min:40,  desc:'一次做完，中途不休息',      stages:['boost','mock'] },
+  { id:'translate',       cat:'翻译', name:'翻译 1 段',      min:30,  desc:'闭卷写完再对照答案',        stages:['boost','mock'] },
+  { id:'write',           cat:'写作', name:'写作 1 篇',      min:35,  desc:'闭卷写完，不查词典',        stages:['boost','mock'] },
+  { id:'exam-half',       cat:'综合', name:'半套限时',       min:65,  desc:'听力加阅读，按考试节奏',    stages:['mock'] },
+  { id:'exam-full',       cat:'综合', name:'整卷模考',       min:130, desc:'连续作答，不用番茄',        stages:['mock'] }
+];
+
+/* ---------- 4. 工具 ---------- */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const DAY = 86400000;
+
+function pad2(n){ return String(n).padStart(2, '0'); }
+
+function dayKey(d = new Date()){
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function fmtClock(sec){
+  sec = Math.max(0, Math.round(sec));
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return `${pad2(m)}:${pad2(s)}`;
+}
+
+function fmtMin(min){
+  if (min < 60) return `${min} 分`;
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? `${h} 小时 ${m} 分` : `${h} 小时`;
+}
+
+let toastTimer = null;
+function toast(msg){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ---------- 5. 状态 ---------- */
+let S = null;
+
+function defaultState(){
+  return {
+    version: 1,
+    createdAt: Date.now(),
+    settings: { daily: 60, pomo: 25, stage: 'auto', autoBreak: true, theme: 'dark' },
+    days: {},
+    sessions: [],
+    cards: []
+  };
+}
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const data = JSON.parse(raw);
+    return Object.assign(defaultState(), data, {
+      settings: Object.assign(defaultState().settings, data.settings || {})
+    });
+  } catch (e) {
+    console.warn('读取本地数据失败，使用空数据', e);
+    return defaultState();
+  }
+}
+
+function saveState(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+  } catch (e) {
+    toast('保存失败，可能是浏览器存储已满');
+  }
+}
+
+function today(){
+  const k = dayKey();
+  if (!S.days[k]) {
+    S.days[k] = { plan: [], sessions: 0, minutes: 0, cards: 0, built: false };
+  }
+  return S.days[k];
+}
+
+/* ---------- 6. 阶段与统计 ---------- */
+function totalMinutes(){
+  return S.sessions.reduce((n, x) => n + (x.status === 'done' ? x.minutes : 0), 0);
+}
+
+// iv >= 4 表示已经推到 7 天档，视为记住
+function masteredCount(){
+  return S.cards.filter(c => c.iv >= 4).length;
+}
+
+function currentStage(){
+  if (S.settings.stage !== 'auto') return S.settings.stage;
+  const m = masteredCount(), t = totalMinutes();
+  if (m >= 40 || t >= 1200) return 'boost';
+  if (m >= 10 || t >= 300)  return 'build';
+  return 'base';
+}
+
+function streakDays(){
+  let n = 0;
+  const d = new Date();
+  for (let i = 0; i < 400; i++) {
+    const key = dayKey(d);
+    const day = S.days[key];
+    if (day && (day.sessions > 0 || day.cards > 0)) {
+      n++;
+    } else if (i > 0) {
+      break;
+    }
+    d.setDate(d.getDate() - 1);
+  }
+  return n;
+}
+
+/* ---------- 7. 卡片与艾宾浩斯调度 ---------- */
+function parseBuiltin(){
+  const out = [];
+  let group = '';
+  BUILTIN_RAW.split('\n').forEach(line => {
+    line = line.trim();
+    if (!line) return;
+    if (line.startsWith('#')) { group = line.slice(1).trim(); return; }
+    const parts = line.split('|');
+    if (parts.length >= 2) {
+      out.push({
+        front: parts[0].trim(),
+        back: parts[1].trim(),
+        ex: (parts[2] || '').trim(),
+        group
+      });
+    }
+  });
+  return out;
+}
+
+function makeCard(w){
+  return {
+    id: 'c' + Math.random().toString(36).slice(2, 9),
+    front: w.front,
+    back: w.back,
+    ex: w.ex || '',
+    group: w.group || '自定义',
+    iv: 0,                          // 艾宾浩斯阶梯索引
+    due: Date.now() + EBB[0] * DAY, // 10 分钟后第一次复习
+    reps: 0,
+    lapses: 0,
+    learnedAt: Date.now()
+  };
+}
+
+function seedBuiltin(){
+  const existing = new Set(S.cards.map(c => c.front.toLowerCase()));
+  let added = 0;
+  parseBuiltin().forEach(w => {
+    if (!existing.has(w.front.toLowerCase())) {
+      S.cards.push(makeCard(w));
+      added++;
+    }
+  });
+  return added;
+}
+
+function dueCards(){
+  const now = Date.now();
+  return S.cards.filter(c => c.due <= now);
+}
+
+/* 评分：0 忘了 / 1 模糊 / 2 记得 */
+function rateCard(card, rating){
+  if (rating === 0) {
+    card.lapses++;
+    card.iv = 0;
+    card.due = Date.now() + EBB[0] * DAY;
+  } else if (rating === 1) {
+    // 模糊：退回一档，不倒退到最初
+    card.iv = Math.max(0, card.iv - 1);
+    card.due = Date.now() + EBB[card.iv] * DAY;
+  } else {
+    card.iv = Math.min(EBB.length - 1, card.iv + 1);
+    card.due = Date.now() + EBB[card.iv] * DAY;
+  }
+  card.reps++;
+  const d = today();
+  d.cards = (d.cards || 0) + 1;
+  saveState();
+}
+
+/* 保持率：艾宾浩斯 e^(-t/S)，S 随复习次数增长 */
+function retentionAt(days, iv){
+  const S0 = 1.2 + iv * 1.8;      // 记忆强度随复习次数提升
+  return Math.exp(-days / S0);
+}
+
+/* ---------- 8. 今日计划 ---------- */
+function makePlanItem(t){
+  return {
+    libId: t.id,
+    name: t.name,
+    cat: t.cat,
+    minutes: t.min,
+    desc: t.desc,
+    done: false
+  };
+}
+
+function buildPlan(force = false){
+  const d = today();
+  if (d.built && !force) return;
+
+  const stage = currentStage();
+  const pool = TASK_LIB.filter(t => t.stages.includes(stage));
+  const target = S.settings.daily;
+  const plan = [];
+  let total = 0;
+
+  // 有到期卡片就先排复习
+  if (dueCards().length > 0) {
+    const t = TASK_LIB.find(t => t.id === 'vocab-review');
+    plan.push(makePlanItem(t));
+    total += t.min;
+  }
+
+  // 用当天日期做起点，每天轮换，避免天天一样
+  const dayNum = Math.floor(Date.now() / DAY);
+  let idx = dayNum % pool.length;
+  let guard = 0;
+
+  while (total < target * 0.85 && guard < pool.length * 3) {
+    const t = pool[idx % pool.length];
+    if (!plan.some(p => p.libId === t.id)) {
+      plan.push(makePlanItem(t));
+      total += t.min;
+    }
+    idx++; guard++;
+  }
+
+  // 目标很短时至少留两件事
+  if (plan.length < 2 && pool.length) {
+    plan.push(makePlanItem(pool[(dayNum + 1) % pool.length]));
+  }
+
+  d.plan = plan;
+  d.built = true;
+  saveState();
+}
+
+function planTotals(){
+  const d = today();
+  const total = d.plan.reduce((n, p) => n + p.minutes, 0);
+  const done = d.plan.filter(p => p.done).reduce((n, p) => n + p.minutes, 0);
+  return { total, done };
+}
+
+/* ---------- 9. 弹窗 ---------- */
+function openDialog({ title, bodyHTML, okText = '确定', cancelText = '取消', onOk, onMount }){
+  const dlg = document.createElement('dialog');
+  dlg.innerHTML =
+    `<div class="dlg-head">${title}</div>
+     <div class="dlg-body">${bodyHTML}</div>
+     <div class="dlg-foot">
+       ${cancelText ? `<button class="btn btn-ghost" data-act="cancel">${cancelText}</button>` : ''}
+       <button class="btn btn-blue" data-act="ok">${okText}</button>
+     </div>`;
+  document.body.appendChild(dlg);
+  dlg.showModal();
+
+  dlg.addEventListener('click', e => {
+    const act = e.target.dataset ? e.target.dataset.act : null;
+    if (act === 'cancel') dlg.close();
+    if (act === 'ok') {
+      if (!onOk || onOk(dlg) !== false) dlg.close();
+    }
+  });
+  dlg.addEventListener('close', () => dlg.remove());
+  if (onMount) onMount(dlg);
+  return dlg;
+}
+
+/* ---------- 10. 计时器状态机 ---------- */
+let T = {
+  state: 'idle',        // idle | focus | break
+  paused: false,
+  name: '', cat: '',
+  total: 0, remain: 0,
+  endAt: 0, startedAt: 0,
+  interruptions: [],
+  checkpoints: [], fired: [],
+  planIdx: -1,
+  timer: null
+};
+
+function clearTick(){
+  if (T.timer) { clearInterval(T.timer); T.timer = null; }
+}
+
+function tickOn(){
+  clearTick();
+  T.timer = setInterval(tick, 250);
+}
+
+function tick(){
+  if (T.state === 'idle' || T.paused) return;
+
+  const left = Math.max(0, Math.round((T.endAt - Date.now()) / 1000));
+  T.remain = left;
+
+  // 超过一个番茄长度的任务，在 25 分钟整数倍处给提示，但不打断
+  if (T.state === 'focus') {
+    const passed = T.total - left;
+    T.checkpoints.forEach((cp, i) => {
+      if (passed >= cp && !T.fired[i]) {
+        T.fired[i] = true;
+        const m = Math.round(cp / 60);
+        toast(`已经连续 ${m} 分钟。这场考试中途不休息，建议撑完整块`);
+      }
+    });
+  }
+
+  paintClock();
+  if (left <= 0) finishSegment();
+}
+
+function startFocus(item, idx){
+  const total = item.minutes * 60;
+  T = {
+    state: 'focus', paused: false,
+    name: item.name, cat: item.cat,
+    total, remain: total,
+    endAt: Date.now() + total * 1000,
+    startedAt: Date.now(),
+    interruptions: [],
+    checkpoints: [], fired: [],
+    planIdx: typeof idx === 'number' ? idx : -1,
+    timer: null
+  };
+  for (let m = 25; m < item.minutes; m += 25) T.checkpoints.push(m * 60);
+  tickOn();
+  renderTimer();
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function togglePause(){
+  if (T.state === 'idle') return;
+  if (!T.paused) {
+    T.remain = Math.max(0, Math.round((T.endAt - Date.now()) / 1000));
+    T.paused = true;
+    clearTick();
+  } else {
+    T.paused = false;
+    T.endAt = Date.now() + T.remain * 1000;
+    tickOn();
+  }
+  renderTimer();
+}
+
+function recordSession(status){
+  const planned = Math.round(T.total / 60);
+  const elapsed = Math.max(0, Math.round((T.total - T.remain) / 60));
+  const entry = {
+    id: 's' + Date.now().toString(36),
+    name: T.name, cat: T.cat,
+    minutes: status === 'done' ? planned : elapsed,
+    planned,
+    startedAt: T.startedAt,
+    endedAt: Date.now(),
+    status,
+    interruptions: T.interruptions.slice()
+  };
+  S.sessions.unshift(entry);
+
+  if (status === 'done') {
+    const d = today();
+    d.sessions = (d.sessions || 0) + 1;
+    d.minutes = (d.minutes || 0) + planned;
+    if (T.planIdx >= 0 && d.plan[T.planIdx]) d.plan[T.planIdx].done = true;
+  }
+  saveState();
+}
+
+function finishSegment(){
+  clearTick();
+
+  if (T.state === 'break') {
+    T.state = 'idle'; T.paused = false; T.total = 0; T.remain = 0;
+    renderTimer(); renderPlan(); renderDaily();
+    toast('休息结束，可以开始下一个了');
+    return;
+  }
+
+  recordSession('done');
+  const doneName = T.name;
+
+  if (S.settings.autoBreak) {
+    const breakMin = 5;
+    T = {
+      state: 'break', paused: false,
+      name: '休息', cat: '',
+      total: breakMin * 60, remain: breakMin * 60,
+      endAt: Date.now() + breakMin * 1000,
+      startedAt: Date.now(),
+      interruptions: [], checkpoints: [], fired: [], planIdx: -1, timer: null
+    };
+    tickOn();
+    renderTimer(); renderPlan(); renderDaily();
+    toast(`「${doneName}」完成，休息 5 分钟，离开屏幕`);
+  } else {
+    T.state = 'idle'; T.paused = false; T.total = 0; T.remain = 0;
+    renderTimer(); renderPlan(); renderDaily();
+    toast(`「${doneName}」完成`);
+  }
+}
+
+function abortFocus(){
+  if (T.state !== 'focus') return;
+  const elapsed = Math.max(0, Math.round((T.total - T.remain) / 60));
+  openDialog({
+    title: '放弃这个番茄？',
+    bodyHTML: `<p>已经过去 <b>${elapsed} 分钟</b>。</p>
+      <p>按规则，这个番茄作废，不计入今天的账。已经断了的专注，算半个只会让你高估自己。</p>`,
+    okText: '作废',
+    cancelText: '继续做',
+    onOk: () => {
+      recordSession('abort');
+      clearTick();
+      T.state = 'idle'; T.paused = false; T.total = 0; T.remain = 0;
+      renderTimer(); renderPlan(); renderDaily(); renderStats();
+      toast('已作废，休息 5 分钟后重开一个');
+      return true;
+    }
+  });
+}
+
+function addInterruption(){
+  if (T.state !== 'focus') return;
+  openDialog({
+    title: '记一次干扰',
+    bodyHTML: `<p>写下来，然后回到刚才那行。计时不会停。</p>
+      <input type="text" id="itrInput" placeholder="比如：回了一条微信 / 想起要交电费"
+        style="width:100%;margin-top:4px" autocomplete="off">`,
+    okText: '记下',
+    onOk: dlg => {
+      const v = dlg.querySelector('#itrInput').value.trim() || '未说明';
+      T.interruptions.push({ at: Date.now(), reason: v });
+      renderTimer();
+      toast('已记下，继续');
+      return true;
+    },
+    onMount: dlg => setTimeout(() => dlg.querySelector('#itrInput').focus(), 60)
+  });
+}
+
+function paintClock(){
+  const num = $('#timerNum');
+  if (!num) return;
+  if (T.state === 'idle') return;
+  num.textContent = fmtClock(T.remain);
+  const p = T.total ? T.remain / T.total : 1;
+  const ring = $('#ringFg');
+  if (ring) ring.style.strokeDashoffset = RING_LEN * (1 - p);
+}
+
+/* ---------- 11. 渲染：顶栏 / 计时器 ---------- */
+function renderTop(){
+  const st = currentStage();
+  const badge = $('#stageBadge');
+  badge.textContent = STAGES[st].name;
+  badge.title = STAGES[st].hint;
+  $('#streakMeta').textContent = `连续 ${streakDays()} 天`;
+
+  const due = dueCards().length;
+  const pill = $('#duePill');
+  pill.textContent = due;
+  pill.hidden = due === 0;
+}
+
+function renderTimer(){
+  const stageEl = $('#timerStage');
+  const sub = $('#timerSub');
+  const wrap = $('#ringWrap');
+  const actions = $('#timerActions');
+  const hint = $('#timerHint');
+
+  wrap.classList.remove('is-idle', 'is-break');
+
+  if (T.state === 'idle') {
+    const last = S.sessions.find(s => s.status === 'done');
+    stageEl.textContent = last ? '今天随时可以开始' : '今天还没开始';
+    $('#timerNum').textContent = fmtClock(S.settings.pomo * 60);
+    sub.textContent = '从下面挑一件事开始';
+    wrap.classList.add('is-idle');
+    $('#ringFg').style.strokeDashoffset = 0;
+    actions.innerHTML = '';
+    const d = today();
+    hint.textContent = d.sessions
+      ? `今天已完成 ${d.sessions} 个番茄，${d.minutes} 分钟`
+      : '一个番茄只做一件事，铃响必须停';
+    return;
+  }
+
+  if (T.state === 'break') {
+    stageEl.textContent = '休息中，别碰屏幕';
+    sub.textContent = '站起来、走两步、看远处';
+    wrap.classList.add('is-break');
+    actions.innerHTML = `<button class="btn btn-ghost" id="skipBreakBtn">跳过休息</button>`;
+    $('#skipBreakBtn').onclick = () => {
+      clearTick();
+      T.state = 'idle'; T.paused = false;
+      renderTimer(); toast('休息跳过了，下一个番茄开始吧');
+    };
+    hint.textContent = '休息不是奖励，是让下一个番茄有效的一部分';
+    paintClock();
+    return;
+  }
+
+  // focus
+  stageEl.textContent = `${T.cat} · ${T.name}`;
+  sub.textContent = T.paused ? '已暂停' : `共 ${Math.round(T.total / 60)} 分钟`;
+  actions.innerHTML =
+    `<button class="btn btn-primary" id="pauseBtn">${T.paused ? '继续' : '暂停'}</button>
+     <button class="btn btn-ghost" id="itrBtn">记一次干扰</button>
+     <button class="btn btn-quiet" id="abortBtn">放弃</button>`;
+
+  $('#pauseBtn').onclick = togglePause;
+  $('#itrBtn').onclick = addInterruption;
+  $('#abortBtn').onclick = abortFocus;
+
+  const its = T.interruptions.length;
+  hint.textContent = its
+    ? `已记 ${its} 次干扰：${T.interruptions.map(x => x.reason).join('、')}`
+    : (T.paused ? '暂停期间不算专注时间' : '中断先记下来，别立刻去处理');
+
+  paintClock();
+}
+
+/* ---------- 12. 渲染：今日安排 ---------- */
+function renderPlan(){
+  const d = today();
+  buildPlan();
+
+  const list = $('#planList');
+  const { total, done } = planTotals();
+  $('#planSummary').textContent = `${done} / ${total} 分钟`;
+
+  list.innerHTML = d.plan.map((p, i) => `
+    <div class="plan-item ${p.done ? 'done' : ''}">
+      <button class="check" data-check="${i}" aria-label="标记完成">${p.done ? '✓' : ''}</button>
+      <div class="plan-main">
+        <div class="plan-name">${p.name}</div>
+        <div class="plan-desc">${p.desc || ''}</div>
+      </div>
+      <div class="plan-meta">
+        <span class="cat-tag">${p.cat}</span>
+        <span class="dur">${p.minutes} 分</span>
+        <button class="play-btn" data-play="${i}" aria-label="开始">▶</button>
+      </div>
+    </div>`).join('');
+
+  $$('[data-check]', list).forEach(btn => {
+    btn.onclick = () => {
+      const i = +btn.dataset.check;
+      d.plan[i].done = !d.plan[i].done;
+      saveState(); renderPlan();
+    };
+  });
+
+  $$('[data-play]', list).forEach(btn => {
+    btn.onclick = () => {
+      const i = +btn.dataset.play;
+      if (T.state !== 'idle') {
+        toast('先处理完当前这段');
+        return;
+      }
+      startFocus(d.plan[i], i);
+    };
+  });
+
+  // 复习入口条
+  const due = dueCards().length;
+  const slot = $('#dueBarSlot');
+  if (due > 0) {
+    slot.innerHTML = `
+      <div class="due-bar">
+        <div class="due-bar-main"><b>${due} 张卡片到期</b><span>按遗忘曲线，现在复习效果最好</span></div>
+        <button class="btn btn-blue" id="goReview">去复习</button>
+      </div>`;
+    $('#goReview').onclick = () => switchView('review');
+  } else {
+    slot.innerHTML = '';
+  }
+}
+
+/* ---------- 13. 渲染：今日的账 ---------- */
+function renderDaily(){
+  const d = today();
+  const todaySessions = S.sessions.filter(s => dayKey(new Date(s.endedAt)) === dayKey());
+  const its = todaySessions.reduce((n, s) => n + (s.interruptions ? s.interruptions.length : 0), 0);
+
+  $('#dailyGrid').innerHTML = `
+    <div class="stat-box"><div class="stat-label">番茄</div>
+      <div class="stat-num">${d.sessions || 0}</div></div>
+    <div class="stat-box"><div class="stat-label">专注</div>
+      <div class="stat-num">${d.minutes || 0}<span class="stat-unit">分钟</span></div></div>
+    <div class="stat-box"><div class="stat-label">卡片</div>
+      <div class="stat-num">${d.cards || 0}<span class="stat-unit">张</span></div></div>
+    <div class="stat-box"><div class="stat-label">干扰</div>
+      <div class="stat-num">${its}</div></div>`;
+}
+
+/* ---------- 14. 复习 ---------- */
+let R = { queue: [], idx: 0, revealed: false };
+
+function startReview(){
+  R.queue = dueCards().slice(0, 30).map(c => c.id);
+  R.idx = 0;
+  R.revealed = false;
+  renderReview();
+}
+
+function renderReview(){
+  const body = $('#reviewBody');
+
+  if (R.queue.length === 0) {
+    const due = dueCards();
+    if (due.length > 0) { startReview(); return; }
+
+    const next = S.cards
+      .filter(c => c.due > Date.now())
+      .sort((a, b) => a.due - b.due)[0];
+
+    body.innerHTML = `
+      <div class="review-empty">
+        <strong>${S.cards.length ? '现在没有到期的卡片' : '词库还是空的'}</strong>
+        ${S.cards.length
+          ? (next ? `下一张在 ${fmtNextDue(next.due)} 到期。按遗忘曲线，提前背是浪费，到点再来。` : '')
+          : '去设置里点「补齐内置词库」，先把 100 个高频词铺进去。'}
+      </div>`;
+    return;
+  }
+
+  if (R.idx >= R.queue.length) {
+    body.innerHTML = `
+      <div class="review-empty">
+        <strong>这一批过完了</strong>
+        共复习 ${R.queue.length} 张。到期的卡片已经按曲线排到下一次。<br><br>
+        <button class="btn btn-ghost" id="reviewAgain">再抽一批</button>
+      </div>`;
+    const btn = $('#reviewAgain');
+    if (btn) btn.onclick = () => { R.queue = []; startReview(); };
+    return;
+  }
+
+  const card = S.cards.find(c => c.id === R.queue[R.idx]);
+  if (!card) { R.idx++; renderReview(); return; }
+
+  body.innerHTML = `
+    <div class="fc-wrap">
+      <div class="fc-progress">第 ${R.idx + 1} / ${R.queue.length} 张 · 第 ${card.iv + 1} 档</div>
+      <div class="flashcard" id="flashcard">
+        <div class="fc-front">${card.front}</div>
+        <div class="fc-back" id="fcBack" hidden>
+          ${card.back}
+          ${card.ex ? `<div class="ex">${card.ex}</div>` : ''}
+        </div>
+        <div class="fc-tip" id="fcTip">点击查看释义</div>
+      </div>
+      <div class="fc-actions hidden" id="fcActions">
+        <button class="rate again" data-r="0">忘了<small>回到 10 分钟档</small></button>
+        <button class="rate" data-r="1">模糊<small>退回一档</small></button>
+        <button class="rate good" data-r="2">记得<small>进下一档</small></button>
+      </div>
+    </div>`;
+
+  const fc = $('#flashcard');
+  fc.onclick = () => {
+    if (R.revealed) return;
+    R.revealed = true;
+    $('#fcBack').hidden = false;
+    $('#fcTip').textContent = '想清楚再点下面';
+    $('#fcActions').classList.remove('hidden');
+  };
+
+  $$('[data-r]', body).forEach(btn => {
+    btn.onclick = () => {
+      rateCard(card, +btn.dataset.r);
+      R.idx++;
+      R.revealed = false;
+      renderTop();
+      renderReview();
+    };
+  });
+}
+
+function fmtNextDue(ts){
+  const d = Math.round((ts - Date.now()) / DAY * 24 * 60);
+  if (d < 60) return `${Math.max(1, d)} 分钟后`;
+  const h = Math.round(d / 60);
+  if (h < 24) return `${h} 小时后`;
+  return `${Math.round(h / 24)} 天后`;
+}
+
+/* ---------- 15. 记录 ---------- */
+function renderStats(){
+  const done = S.sessions.filter(s => s.status === 'done');
+  const totalMin = done.reduce((n, s) => n + s.minutes, 0);
+
+  // 最长连续
+  const dayKeys = Object.keys(S.days)
+    .filter(k => { const d = S.days[k]; return d.sessions > 0 || d.cards > 0; })
+    .sort();
+  let best = 0, run = 0, prev = null;
+  dayKeys.forEach(k => {
+    const t = new Date(k + 'T00:00:00').getTime();
+    run = (prev !== null && t - prev === DAY) ? run + 1 : 1;
+    best = Math.max(best, run);
+    prev = t;
+  });
+
+  $('#totalGrid').innerHTML = `
+    <div class="stat-box"><div class="stat-label">总番茄</div>
+      <div class="stat-num">${done.length}</div></div>
+    <div class="stat-box"><div class="stat-label">总专注</div>
+      <div class="stat-num">${Math.round(totalMin / 60 * 10) / 10}<span class="stat-unit">小时</span></div></div>
+    <div class="stat-box"><div class="stat-label">记住的卡</div>
+      <div class="stat-num">${masteredCount()}<span class="stat-unit">/${S.cards.length}</span></div></div>
+    <div class="stat-box"><div class="stat-label">最长连续</div>
+      <div class="stat-num">${best}<span class="stat-unit">天</span></div></div>`;
+
+  // 近 7 天
+  const week = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const k = dayKey(d);
+    const day = S.days[k];
+    week.push({
+      key: k,
+      label: i === 0 ? '今天' : `${d.getMonth() + 1}/${d.getDate()}`,
+      min: day ? (day.minutes || 0) : 0,
+      today: i === 0
+    });
+  }
+  const max = Math.max(30, ...week.map(w => w.min));
+  $('#weekBars').innerHTML = week.map(w => `
+    <div class="bar-col">
+      <div class="bar-val">${w.min || ''}</div>
+      <div class="bar ${w.today ? 'today' : ''}" style="height:${Math.round(w.min / max * 78)}%;max-height:92px"></div>
+      <div class="bar-label">${w.label}</div>
+    </div>`).join('');
+
+  // 分类占比
+  const byCat = {};
+  done.forEach(s => { byCat[s.cat] = (byCat[s.cat] || 0) + s.minutes; });
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const catMax = cats.length ? cats[0][1] : 1;
+  $('#catRows').innerHTML = cats.length
+    ? cats.map(([c, m]) => `
+      <div class="cat-row">
+        <span class="n">${c}</span>
+        <span class="track"><span class="fill" style="width:${Math.round(m / catMax * 100)}%"></span></span>
+        <span class="v">${fmtMin(m)}</span>
+      </div>`).join('')
+    : '<div style="color:var(--faint);font-size:12.5px">还没有记录</div>';
+
+  // 最近
+  $('#logList').innerHTML = S.sessions.length
+    ? S.sessions.slice(0, 14).map(s => {
+      const d = new Date(s.endedAt);
+      return `<div class="log-row">
+        <span class="t">${pad2(d.getHours())}:${pad2(d.getMinutes())}</span>
+        <span class="n">${s.name}</span>
+        <span class="s ${s.status === 'done' ? 's-done' : 's-abort'}">${s.status === 'done' ? '完成' : '作废'}</span>
+        <span class="m">${s.minutes} 分</span>
+      </div>`;
+    }).join('')
+    : '<div class="log-row"><span class="n" style="color:var(--faint)">还没有记录</span></div>';
+
+  renderCurve();
+}
+
+/* 艾宾浩斯对照曲线 */
+function renderCurve(){
+  const slot = $('#curveSlot');
+  if (!slot) return;
+
+  const x0 = 44, y0 = 26, W = 588, H = 116;
+  const xs = t => x0 + t / 30 * W;
+  const ys = r => y0 + (1 - r) * H;
+
+  const raw = [];
+  for (let t = 0; t <= 30; t += 0.1) {
+    raw.push([t, Math.max(0.08, Math.exp(-t / 0.92))]);
+  }
+
+  const rev = [];
+  const REV = [1, 2, 4, 7, 15, 30];
+  let y = 1, n = 0, ri = 0;
+  for (let t = 0; t <= 30; t += 0.1) {
+    if (ri < REV.length && t >= REV[ri]) { y = 1; n++; ri++; }
+    rev.push([t, y]);
+    y *= Math.exp(-0.1 / (0.92 * (1 + 0.8 * n)));
+  }
+
+  const toPath = pts => pts.map((p, i) =>
+    `${i ? 'L' : 'M'}${xs(p[0]).toFixed(1)} ${ys(p[1]).toFixed(1)}`).join(' ');
+
+  slot.innerHTML = `
+    <div class="chart-card">
+      <svg width="100%" viewBox="0 0 680 190" role="img" aria-label="艾宾浩斯遗忘曲线与按计划复习的保持率对比">
+        <line x1="${x0}" y1="${ys(1)}" x2="${x0 + W}" y2="${ys(1)}" stroke="var(--line)" stroke-width="0.5"/>
+        <line x1="${x0}" y1="${ys(0.5)}" x2="${x0 + W}" y2="${ys(0.5)}" stroke="var(--line)" stroke-width="0.5" stroke-dasharray="3 4"/>
+        <line x1="${x0}" y1="${ys(0)}" x2="${x0 + W}" y2="${ys(0)}" stroke="var(--line)" stroke-width="0.5"/>
+        <text x="${x0 - 8}" y="${ys(1)}" text-anchor="end" dominant-baseline="central" font-size="10.5" fill="var(--faint)">100%</text>
+        <text x="${x0 - 8}" y="${ys(0.5)}" text-anchor="end" dominant-baseline="central" font-size="10.5" fill="var(--faint)">50%</text>
+        <text x="${x0 - 8}" y="${ys(0)}" text-anchor="end" dominant-baseline="central" font-size="10.5" fill="var(--faint)">0</text>
+        <path d="${toPath(raw)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="${toPath(rev)}" fill="none" stroke="var(--green)" stroke-width="1.8"/>
+        ${REV.map(t => `<line x1="${xs(t)}" y1="${y0}" x2="${xs(t)}" y2="${ys(0)}" stroke="var(--green)" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.5"/>`).join('')}
+        ${[[0, '0'], [7, '7 天'], [15, '15 天'], [30, '30 天']].map(([t, lab]) =>
+          `<text x="${xs(t)}" y="${ys(0) + 14}" text-anchor="middle" font-size="10.5" fill="var(--faint)">${lab}</text>`).join('')}
+        <g transform="translate(${x0 + 6},${y0 + 6})">
+          <rect x="0" y="0" width="9" height="9" rx="2" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="2 2"/>
+          <text x="15" y="5" dominant-baseline="central" font-size="11" fill="var(--faint)">不复习</text>
+          <rect x="72" y="0" width="9" height="9" rx="2" fill="var(--green)"/>
+          <text x="87" y="5" dominant-baseline="central" font-size="11" fill="var(--green)">按 1·2·4·7·15 天复习</text>
+        </g>
+      </svg>
+      <div style="font-size:12px;color:var(--faint);line-height:1.7;margin-top:6px">
+        虚线是不复习时的自然遗忘，一天就掉到三成左右；绿线是每次都在遗忘临界点复习的结果。
+        卡片每答对一次，衰减就慢一档——这就是为什么 <b style="color:var(--dim);font-weight:500">「每天复习」比「一次背两小时」有用得多</b>。
+      </div>
+    </div>`;
+}
+
+/* ---------- 16. 设置 ---------- */
+function renderSettings(){
+  $('#setDaily').value = S.settings.daily;
+  $('#setPomo').value = S.settings.pomo;
+  $('#setStage').value = S.settings.stage;
+  $('#setAutoBreak').checked = !!S.settings.autoBreak;
+}
+
+/* ---------- 17. 视图切换 ---------- */
+function switchView(name){
+  $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+  if (name === 'review') renderReview();
+  if (name === 'stats') renderStats();
+  if (name === 'settings') renderSettings();
+  renderTop();
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ---------- 18. 事件绑定 ---------- */
+function bindEvents(){
+  $$('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));
+
+  $('#themeBtn').onclick = () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    S.settings.theme = next;
+    saveState();
+  };
+
+  $('#addTaskBtn').onclick = () => {
+    openDialog({
+      title: '自定义一个任务',
+      bodyHTML: `
+        <p>名称</p>
+        <input type="text" id="ctName" placeholder="比如：背 30 个新词" style="width:100%" autocomplete="off">
+        <p style="margin-top:12px">分类</p>
+        <div class="chip-row" id="ctCats">
+          ${['词汇', '听力', '阅读', '翻译', '写作', '综合'].map((c, i) =>
+            `<button class="chip ${i === 0 ? 'on' : ''}" data-cat="${c}">${c}</button>`).join('')}
+        </div>
+        <p style="margin-top:12px">时长（分钟）</p>
+        <input type="number" id="ctMin" value="${S.settings.pomo}" min="5" max="180" step="5" style="width:100px">
+        <p style="margin-top:14px;font-size:12px;color:var(--faint)">
+          超过 25 分钟的任务，会在每 25 分钟处提醒一次，但不会打断。
+        </p>`,
+      okText: '加进今天',
+      onOk: dlg => {
+        const name = dlg.querySelector('#ctName').value.trim();
+        if (!name) { toast('先给任务起个名字'); return false; }
+        const cat = dlg.querySelector('.chip.on')?.dataset.cat || '综合';
+        const min = Math.max(5, Math.min(180, +dlg.querySelector('#ctMin').value || 25));
+        const d = today();
+        d.plan.push({ libId: 'custom', name, cat, minutes: min, desc: '自定义任务', done: false });
+        saveState(); renderPlan();
+        return true;
+      },
+      onMount: dlg => {
+        dlg.querySelector('#ctName').focus();
+        dlg.querySelectorAll('.chip').forEach(ch => {
+          ch.onclick = () => {
+            dlg.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+            ch.classList.add('on');
+          };
+        });
+      }
+    });
+  };
+
+  $('#setDaily').onchange = e => {
+    S.settings.daily = Math.max(20, Math.min(360, +e.target.value || 60));
+    e.target.value = S.settings.daily;
+    today().built = false;
+    buildPlan(true);
+    saveState(); renderPlan();
+  };
+
+  $('#setPomo').onchange = e => {
+    S.settings.pomo = Math.max(10, Math.min(60, +e.target.value || 25));
+    e.target.value = S.settings.pomo;
+    saveState(); renderTimer();
+  };
+
+  $('#setStage').onchange = e => {
+    S.settings.stage = e.target.value;
+    today().built = false;
+    buildPlan(true);
+    saveState(); renderTop(); renderPlan();
+  };
+
+  $('#setAutoBreak').onchange = e => {
+    S.settings.autoBreak = e.target.checked;
+    saveState();
+  };
+
+  $('#importBtn').onclick = () => {
+    const raw = $('#importArea').value.trim();
+    if (!raw) { toast('先粘贴内容'); return; }
+    const existing = new Set(S.cards.map(c => c.front.toLowerCase()));
+    let added = 0;
+    raw.split('\n').forEach(line => {
+      line = line.trim();
+      if (!line) return;
+      const [front, back, ex] = line.split('|');
+      if (!front || !back) return;
+      if (existing.has(front.trim().toLowerCase())) return;
+      S.cards.push(makeCard({ front: front.trim(), back: back.trim(), ex: (ex || '').trim(), group: '自定义' }));
+      added++;
+    });
+    saveState();
+    $('#importArea').value = '';
+    renderTop(); renderReview();
+    toast(added ? `导入了 ${added} 张` : '没有新增，可能都重复了');
+  };
+
+  $('#importBuiltinBtn').onclick = () => {
+    const n = seedBuiltin();
+    saveState(); renderTop(); renderReview();
+    toast(n ? `补齐了 ${n} 张内置词卡` : '内置词库已经在里面了');
+  };
+
+  $('#exportBtn').onclick = () => {
+    const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `番茄四级备份-${dayKey()}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast('已导出');
+  };
+
+  $('#importDataBtn').onclick = () => $('#fileInput').click();
+
+  $('#fileInput').onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || !data.settings) throw new Error('格式不对');
+        S = Object.assign(defaultState(), data, {
+          settings: Object.assign(defaultState().settings, data.settings || {})
+        });
+        saveState();
+        renderAll();
+        toast('已恢复');
+      } catch (err) {
+        toast('这个文件读不了');
+      }
+    };
+    reader.readAsText(f);
+    e.target.value = '';
+  };
+
+  $('#resetBtn').onclick = () => {
+    openDialog({
+      title: '清空全部数据？',
+      bodyHTML: `<p>所有番茄记录、卡片进度、设置都会删掉，<b>不能恢复</b>。</p>
+        <p>建议先点上面的「导出」存一份。</p>`,
+      okText: '确认清空',
+      onOk: () => {
+        localStorage.removeItem(STORAGE_KEY);
+        S = defaultState();
+        seedBuiltin();
+        buildPlan(true);
+        saveState();
+        renderAll();
+        toast('已清空');
+        return true;
+      }
+    });
+  };
+
+  // 关页面前提醒未完成的番茄
+  window.addEventListener('beforeunload', e => {
+    if (T.state === 'focus' && !T.paused) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+}
+
+/* ---------- 19. 渲染总入口 ---------- */
+function renderAll(){
+  renderTop();
+  renderTimer();
+  renderPlan();
+  renderDaily();
+  if ($('#view-review').classList.contains('active')) renderReview();
+  if ($('#view-stats').classList.contains('active')) renderStats();
+}
+
+/* ---------- 20. 启动 ---------- */
+function boot(){
+  S = loadState();
+
+  document.documentElement.dataset.theme = S.settings.theme || 'dark';
+
+  // 第一次打开，铺内置词库
+  if (S.cards.length === 0) {
+    seedBuiltin();
+  }
+
+  buildPlan();
+  saveState();
+
+  bindEvents();
+
+  // 统计页里插一块曲线图的位置
+  const statsView = $('#view-stats');
+  const anchor = $('#catRows').closest('.chart-card');
+  const curve = document.createElement('div');
+  curve.id = 'curveSlot';
+  statsView.insertBefore(
+    (() => {
+      const head = document.createElement('div');
+      head.className = 'section-head';
+      head.innerHTML = '<h2>遗忘曲线</h2><span class="sub" style="font-size:12px;color:var(--faint)">卡片调度就按这条线走</span>';
+      return head;
+    })(),
+    anchor
+  );
+  statsView.insertBefore(curve, anchor);
+
+  renderAll();
+  renderStats();
+
+  // 每隔一分钟看一眼有没有新到期的卡片
+  setInterval(() => { renderTop(); }, 60000);
+}
+
+boot();
+</script>
+</body>
+</html>

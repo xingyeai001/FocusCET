@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<link rel="stylesheet" href="style.css">
+<title>FocusCET</title>
+</head>
+<body>
+
+<header class="titlebar">
+  <div class="brand">
+    <!-- 和图标一致的 C：渐变两端取自 build/FocusCET.ico 的取样值（#FFB06E → #C32E6E）。
+         用 SVG 而不是小图，是因为 15px 下位图会糊，矢量怎么缩都清。 -->
+    <svg class="brandmark" viewBox="0 0 24 24" aria-hidden="true">
+      <defs>
+        <linearGradient id="fcGrad" x1="15" y1="4" x2="8" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#FFB06E" />
+          <stop offset="1" stop-color="#C32E6E" />
+        </linearGradient>
+      </defs>
+      <path d="M17.1 5.9a8 8 0 1 0 .05 12.2" fill="none" stroke="url(#fcGrad)"
+            stroke-width="3.2" stroke-linecap="round" />
+    </svg>
+    <span class="bname">FocusCET</span>
+  </div>
+  <nav class="tabs">
+    <button class="tab on" data-view="today">今日</button>
+    <button class="tab" data-view="review">复习<i class="dot" id="dueDot" hidden></i></button>
+    <button class="tab" data-view="stats">记录</button>
+    <button class="tab" data-view="settings">设置</button>
+  </nav>
+  <div class="winbtns">
+    <button class="wb" id="btnMin" title="最小化">—</button>
+    <button class="wb" id="btnMax" title="最大化">▢</button>
+    <button class="wb close" id="btnClose" title="关闭">✕</button>
+  </div>
+</header>
+
+<main class="body">
+
+  <!-- ================= 今日 ================= -->
+  <section class="view on" id="view-today">
+    <div class="topline">
+      <span class="chip stage" id="stageBadge">基础期</span>
+      <span class="chip plain" id="streakText">连续 0 天</span>
+      <span class="grow"></span>
+      <span class="topright" id="todayStat"></span>
+    </div>
+
+    <div class="timer-card">
+      <div class="tstage" id="timerStage">今天还没开始</div>
+      <div class="ringwrap idle" id="ringWrap">
+        <svg class="ring" viewBox="0 0 200 200">
+          <circle class="rbg" cx="100" cy="100" r="88"></circle>
+          <circle class="rfg" id="ringFg" cx="100" cy="100" r="88"></circle>
+        </svg>
+        <div class="rcenter">
+          <div class="tnum" id="timerNum">25:00</div>
+          <div class="tsub" id="timerSub">从下面挑一件事开始</div>
+        </div>
+      </div>
+      <div class="tactions" id="timerActions"></div>
+      <div class="thint" id="timerHint"></div>
+    </div>
+
+    <div class="blockhead">
+      <h2>今日安排</h2>
+      <span class="sub" id="planSummary"></span>
+      <span class="grow"></span>
+      <button class="linkbtn" id="btnRebuild" title="按当前阶段重新生成">重新排</button>
+      <button class="linkbtn" id="btnAddTask">＋ 自定义任务</button>
+    </div>
+    <div id="dueBar"></div>
+    <div class="planlist" id="planList"></div>
+
+    <div class="blockhead"><h2>今天的账</h2></div>
+    <div class="grid4" id="todayGrid"></div>
+
+  </section>
+
+  <!-- ================= 复习 ================= -->
+  <section class="view" id="view-review">
+    <div id="reviewBody"></div>
+  </section>
+
+  <!-- ================= 记录 ================= -->
+  <section class="view" id="view-stats">
+    <div class="blockhead first"><h2>累计</h2></div>
+    <div class="grid4" id="totalGrid"></div>
+
+    <div class="blockhead"><h2>近 7 天专注</h2><span class="grow"></span><span class="sub" id="weekSum"></span></div>
+    <div class="card"><div class="bars" id="weekBars"></div></div>
+
+    <div class="blockhead"><h2>时间花在哪</h2></div>
+    <div class="card"><div class="catrows" id="catRows"></div></div>
+
+    <div class="blockhead"><h2>遗忘曲线</h2><span class="sub">卡片调度就按这条线走</span></div>
+    <div class="card" id="curveCard"></div>
+
+    <div class="blockhead">
+      <h2>最近记录</h2><span class="grow"></span>
+      <button class="btn sm" id="btnAllLogs">全部记录</button>
+    </div>
+    <div class="loglist" id="logList"></div>
+  </section>
+
+  <!-- ================= 设置 ================= -->
+  <section class="view" id="view-settings">
+    <div class="set-wrap">
+
+      <nav class="set-nav" id="setNav" aria-label="设置分组">
+        <button class="set-link on" data-sec="secPrep">备考</button>
+        <button class="set-link" data-sec="secPace">节奏</button>
+        <button class="set-link" data-sec="secBell">铃声</button>
+        <button class="set-link" data-sec="secBellStyle">铃声样式</button>
+        <button class="set-link" data-sec="secWindow">窗口</button>
+        <button class="set-link" data-sec="secVoice">单词发音</button>
+        <button class="set-link" data-sec="secData">导入与数据</button>
+      </nav>
+
+      <div class="set-main">
+
+        <div class="set-sec" id="secPrep">
+          <div class="blockhead first"><h2>备考</h2><span class="sub">决定新词从哪个池子里发</span></div>
+          <div class="card">
+            <div class="srow">
+              <div class="sinfo"><div class="st">考哪一级</div><div class="sd" id="levelNote">四级词池</div></div>
+              <div class="seg" id="segLevel">
+                <button data-v="cet4">四级</button>
+                <button data-v="cet6">六级</button>
+              </div>
+            </div>
+            <div class="srow">
+              <div class="sinfo"><div class="st">考试日期</div><div class="sd">用来倒推每天该发多少新词，可以空着</div></div>
+              <div class="sctrl"><input type="date" id="setExam"></div>
+            </div>
+            <div class="srow" id="rowPace" hidden>
+              <div class="sinfo"><div class="st">照这个速度</div><div class="sd" id="paceText">—</div></div>
+              <div class="sctrl"><button class="btn sm" id="btnPaceFix">按考试配速</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="set-sec" id="secPace">
+          <div class="blockhead"><h2>节奏</h2><span class="sub">改完立刻生效</span></div>
+          <div class="card">
+            <div class="srow">
+              <div class="sinfo"><div class="st">每日目标</div><div class="sd">只用来生成建议安排，不是硬指标</div></div>
+              <div class="sctrl"><input type="number" id="setDaily" min="20" max="360" step="10"><span class="unit">分钟</span></div>
+            </div>
+            <div class="srow">
+              <div class="sinfo"><div class="st">标准番茄长度</div><div class="sd">只影响自定义任务，各题型本身有固定时长</div></div>
+              <div class="sctrl"><input type="number" id="setPomo" min="10" max="60" step="5"><span class="unit">分钟</span></div>
+            </div>
+            <div class="srow">
+              <div class="sinfo"><div class="st">休息时长</div><div class="sd">一段专注结束后自动进入</div></div>
+              <div class="sctrl"><input type="number" id="setBreak" min="1" max="30" step="1"><span class="unit">分钟</span></div>
+            </div>
+            <div class="srow">
+              <div class="sinfo"><div class="st">阶段</div><div class="sd">默认按积累量自动推进，也可以锁定</div></div>
+              <div class="sctrl">
+                <select id="setStage">
+                  <option value="auto">跟随进度</option>
+                  <option value="base">基础期</option>
+                  <option value="build">积累期</option>
+                  <option value="boost">强化期</option>
+                  <option value="mock">模拟期</option>
+                </select>
+              </div>
+            </div>
+            <div class="srow">
+              <div class="sinfo"><div class="st">每天新词</div><div class="sd" id="dailyNewHint">按词频从高到低发，先学最该学的</div></div>
+              <div class="sctrl"><input type="number" id="setDailyNew" min="5" max="50" step="5"><span class="unit">个</span></div>
+            </div>
+            <label class="srow click">
+              <div class="sinfo"><div class="st">铃响后自动休息</div><div class="sd">关掉就手动开始休息</div></div>
+              <input type="checkbox" id="setAutoBreak" class="sw">
+            </label>
+          </div>
+        </div>
+
+        <div class="set-sec" id="secBell">
+          <div class="blockhead"><h2>铃声</h2><span class="sub">到点自己响，不靠系统通知</span></div>
+          <div class="card">
+            <label class="srow click">
+              <div class="sinfo"><div class="st">到点响铃</div><div class="sd">专注结束、休息结束、久坐超时各响一次</div></div>
+              <input type="checkbox" id="setSound" class="sw">
+            </label>
+            <div class="srow" id="rowVol">
+              <div class="sinfo"><div class="st">音量</div><div class="sd">调到"隔壁房间听不见、自己听得见"</div></div>
+              <div class="sctrl volwrap">
+                <input type="range" id="setVol" min="0" max="100" step="5">
+                <span class="unit volnum" id="volVal">70</span>
+              </div>
+            </div>
+            <div class="srow" id="rowTimes">
+              <div class="sinfo"><div class="st">连响几声</div><div class="sd">人不在电脑前时，多响几下才听得见</div></div>
+              <div class="seg" id="segTimes">
+                <button data-v="1">1 声</button>
+                <button data-v="3">3 声</button>
+                <button data-v="6">6 声</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="set-sec" id="secBellStyle">
+          <div class="blockhead"><h2>铃声样式</h2><span class="sub">点一下就能听</span></div>
+          <div class="card pad">
+            <div class="bellgrid" id="bellGrid"></div>
+            <div class="btnrow bellrow">
+              <button class="btn sm" id="bellTest">试听这个</button>
+              <button class="btn sm" id="bellUpload">＋ 上传自己的</button>
+              <span class="bellnote" id="bellNote"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="set-sec" id="secWindow">
+          <div class="blockhead"><h2>窗口</h2></div>
+          <div class="card">
+            <label class="srow click">
+              <div class="sinfo"><div class="st">窗口置顶</div><div class="sd">压在所有窗口上面，适合边看资料边计时</div></div>
+              <input type="checkbox" id="setOnTop" class="sw">
+            </label>
+            <label class="srow click">
+              <div class="sinfo"><div class="st">关闭时收进托盘</div><div class="sd">倒计时继续走，点托盘图标随时叫回来</div></div>
+              <input type="checkbox" id="setTray" class="sw">
+            </label>
+            <label class="srow click">
+              <div class="sinfo"><div class="st">系统通知</div><div class="sd">在屏幕角落弹一条提示。开了专注助手时可能被拦掉</div></div>
+              <input type="checkbox" id="setNotify" class="sw">
+            </label>
+            <div class="srow">
+              <div class="sinfo"><div class="st">主题</div><div class="sd">深色适合晚上，浅色适合白天</div></div>
+              <div class="seg" id="segTheme">
+                <button data-v="dark">深色</button>
+                <button data-v="light">浅色</button>
+              </div>
+            </div>
+            <div class="srow">
+              <div class="sinfo">
+                <div class="st">界面材质</div>
+                <div class="sd" id="matNote">亚克力和云母会让窗口透出桌面背景，Win11 22H2 以上才支持</div>
+              </div>
+              <div class="seg" id="segMat">
+                <button data-v="solid">纯色</button>
+                <button data-v="acrylic">亚克力</button>
+                <button data-v="mica">云母</button>
+                <button data-v="tabbed">云母 Alt</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="set-sec" id="secVoice">
+          <div class="blockhead"><h2>单词发音</h2><span class="sub">复习卡片上的「朗读」按钮</span></div>
+          <div class="card">
+            <div class="srow">
+              <div class="sinfo">
+                <div class="st" id="voiceState">正在检查发音引擎…</div>
+                <div class="sd" id="voiceHint">词表本身没有音标，靠内置离线语音把词读出来</div>
+              </div>
+              <div class="sctrl">
+                <button class="btn sm" id="btnVoiceTest">试听</button>
+                <button class="btn sm" id="btnVoiceSet" hidden>去装语音</button>
+              </div>
+            </div>
+            <div class="srow">
+              <div class="sinfo"><div class="st">语速</div><div class="sd">慢一点才听得清尾音（-ed / -s）</div></div>
+              <div class="sctrl">
+                <div class="seg" id="segVoicePace">
+                  <button data-v="slow">慢</button>
+                  <button data-v="normal">正常</button>
+                  <button data-v="fast">快</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="set-sec" id="secData">
+          <div class="blockhead"><h2>导入与数据</h2><span class="sub">每行一张卡片，竖线分隔 · 数据存在本机不上传</span></div>
+          <div class="card pad">
+            <div class="poolbar" id="poolBar"></div>
+            <textarea id="importArea" placeholder="abandon | v. 放弃，抛弃&#10;adapt | v. 适应；改编 | It takes time to adapt."></textarea>
+            <div class="btnrow">
+              <button class="btn primary" id="btnImport">导入</button>
+              <button class="btn" id="btnSeed">再发 20 个新词</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="srow">
+              <div class="sinfo"><div class="st">备份与恢复</div><div class="sd" id="dataPath"></div></div>
+              <div class="sctrl">
+                <button class="btn sm" id="btnExport">导出</button>
+                <button class="btn sm" id="btnImportData">恢复</button>
+                <button class="btn sm" id="btnReveal">打开目录</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="srow">
+              <div class="sinfo">
+                <div class="st">重新开始</div>
+                <div class="sd">清空番茄记录、卡片进度和今日安排，像刚装上一样。清空前自动备份，后悔了能恢复。</div>
+              </div>
+              <div class="sctrl">
+                <button class="btn sm danger" id="btnReset">清空学习记录</button>
+                <button class="btn sm quiet" id="btnResetAll">连设置一起</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /set-main -->
+    </div><!-- /set-wrap -->
+
+    <div class="footnote">
+      FocusCET 0.1.0 · 本地运行，不联网<br>
+      卸载程序不会删除数据，config.json 会留在用户目录里
+    </div>
+  </section>
+
+</main>
+
+<div id="modalRoot"></div>
+<div id="toast"></div>
+
+<script src="bell.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

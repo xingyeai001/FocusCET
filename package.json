@@ -1,0 +1,79 @@
+{
+  "name": "focuscet",
+  "productName": "FocusCET",
+  "version": "0.1.0",
+  "description": "FocusCET —— 把番茄工作法和四六级备考绑在一起的本地学习台",
+  "main": "main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node build/dev.js",
+    "dev": "node build/dev.js",
+    "sandbox": "node build/dev.js --sandbox",
+    "sandbox:fresh": "node build/dev.js --sandbox --fresh",
+    "e2e": "node build/e2e.js",
+    "test:sound": "node build/audiotest.js",
+    "test:bell": "node build/belltest.js",
+    "dist:dir": "electron-builder --win dir --x64",
+    "dist:setup": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.focuscet.app",
+    "productName": "FocusCET",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "renderer/**/*",
+      "assets/**/*",
+      "!**/*.md"
+    ],
+    "asar": true,
+    "compression": "maximum",
+    "win": {
+      "icon": "build/icon.ico",
+      "executableName": "FocusCET",
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FocusCET",
+      "artifactName": "FocusCET-Setup-${version}.${ext}",
+      "deleteAppDataOnUninstall": false
+    },
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+    "extraResources": [
+      {
+        "from": "engine",
+        "to": "engine"
+      }
+    ],
+    "afterPack": "build/afterpack.js"
+  }
+}
