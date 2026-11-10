@@ -4,6 +4,7 @@ node_modules/
 # 打包产物（181 MB 安装包与解包目录，不进版本库）
 dist/
 dist-old/
+dist-check*/
 *.blockmap
 
 # 离线语音引擎（98 MB，第三方资源：piper 二进制 + 语音模型）

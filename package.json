@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "FocusCET —— 把番茄工作法和四六级备考绑在一起的本地学习台",
   "main": "main.js",
+  "author": "FocusCET",
   "license": "MIT",
   "scripts": {
     "start": "node build/dev.js",
