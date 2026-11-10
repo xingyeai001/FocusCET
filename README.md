@@ -6,6 +6,29 @@
 > 新目录还没有 `config.json` 时，启动会把旧目录里的配置和自定义铃声**复制**过来，
 > 旧目录原样保留（确认没问题后可以自己删）。只复制、不搬移，改错了也不会丢东西。
 
+## 安装与运行
+
+**装好直接用**：到 [Releases](https://github.com/xingyeai001/FocusCET/releases) 下载
+`FocusCET-Setup-0.1.0.exe`，双击安装（安装时可自选目录）。要求 Windows 10 / 11 x64。
+这个版本没有做代码签名，首次运行 Windows 会提示「未知发布者」，点「更多信息 → 仍要运行」。
+
+**从源码跑**：
+
+```bash
+npm install
+npm start            # 开发模式：改代码自动重载
+npm run sandbox      # 沙盒模式：数据写临时目录，不碰真实进度
+npm run e2e          # 端到端测试：自动操作界面并截图
+```
+
+`engine/`（98 MB 离线语音引擎）没有纳入仓库，因为它是第三方资源、体积又大。缺了它应用照样能跑，
+只是发音会退回系统 TTS（中文 Windows 上读英文单词效果很差，所以还是建议补上）：
+
+- `engine/piper/` — 从 [rhasspy/piper releases](https://github.com/rhasspy/piper/releases) 取 Windows x64 包，解压后整个目录放进来
+- `engine/voices/` — 从 [piper-voices](https://huggingface.co/rhasspy/piper-voices) 取 `en_US-lessac-medium.onnx` 和同名的 `.json`
+
+许可：Piper 为 MIT，espeak-ng 及其数据为 GPLv3，lessac 语音模型为 CC BY 4.0。
+
 ## 它和普通番茄钟的区别
 
 普通番茄钟只知道「25 分钟」，不知道你在做什么。这个工具的做法是：**每个题型有它自己的自然时长**。
@@ -311,8 +334,8 @@ src/word-freq.json   每个词的频次排名（6635 条，build/reorder.js 生�
 src/cet4-words.txt   四级词表 4543 词（只读，按需发牌）
 src/cet6-words.txt   六级词表 3991 词（只读；其中 2118 个是四级没有的）
 src/tts.js           单词发音：Piper 批量合成 + 缓存 + 预热队列
-engine/piper/        离线语音引擎（piper.exe + espeak-ng 数据 + onnxruntime）
-engine/voices/       语音模型 en_US-lessac-medium.onnx（63MB）+ 配置
+engine/piper/        离线语音引擎（piper.exe + espeak-ng 数据 + onnxruntime）· 未纳入仓库，见上方说明
+engine/voices/       语音模型 en_US-lessac-medium.onnx（63MB）+ 配置 · 未纳入仓库
 renderer/bell.js     铃声：8 种内置音色现场合成 + 用户上传音频解码播放
 renderer/app.js      界面逻辑
 renderer/style.css   样式（深/浅双主题 + 系统材质 .mat 皮肤）
